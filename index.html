@@ -1,49 +1,64 @@
 <!DOCTYPE html>
-<!-- index.html -->
 <html>
-  <head>
-    <title>My Website</title>
-  </head>
-  <body>
-    <h1>Welcome to my sebsite!</h1>
+<head>
+    <title>Test Logging</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h1>Test Logging</h1>
+    <p>Open your console to see the logs.</p>
+
     <script>
-        const url = 'https://www.cloudflare.com/cdn-cgi/trace';
-        const regex = /^ip=(\d+\.\d+\.\d+\.\d+)$/m;
+        const owner = "the-real-finnventor";
+        const repo = "test";
+        const path = "log.txt";
+        const api_url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+        const personal_access_token = "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";
         
-        fetch(url)
-          .then(response => response.text())
-          .then(data => {
-            const match = data.match(regex);
-            if (match && match[1]) {
-              const ipAddress = match[1];
-              const timestamp = new Date().toISOString();
-              const logData = `${ipAddress} ${timestamp}\n`;
-              
-              const logUrl = 'https://raw.githubusercontent.com/the-real-finnventor/test/main/log.txt';
-              fetch(logUrl, {
-                method: 'PUT',
-                body: logData,
-                headers: {
-                  'Content-Type': 'text/plain',
-                  'Authorization': 'token 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'
+        async function logData() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                const ip_address = data.ip;
+                const current_time = new Date().toISOString();
+                const content = `${ip_address} ${current_time}\n`;
+                
+                const fetch_options = {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${personal_access_token}`,
+                        'Content-Type': 'application/json'
+                    }
                 }
-              })
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error(`Failed to append data to log file: ${response.status} ${response.statusText}`);
+                
+                const result = await fetch(api_url, fetch_options);
+                const file_data = await result.json();
+                const sha = file_data.sha;
+                
+                const update_options = {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `Bearer ${personal_access_token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'update log file',
+                        content: btoa(content),
+                        sha: sha
+                    })
                 }
-                console.log('Data appended to log file:', logData);
-              })
-              .catch(error => {
+                
+                const update_result = await fetch(api_url, update_options);
+                const update_data = await update_result.json();
+                
+                console.log(`Data appended to log file: ${ip_address} ${current_time}`);
+            } catch (error) {
                 console.error('Error appending data to log file:', error);
-              });
-            } else {
-              throw new Error('Error retrieving IP address');
             }
-          })
-          .catch(error => {
-            console.error('Error retrieving IP address:', error);
-          });
-        </script>
-  </body>
+        }
+
+        logData();
+    </script>
+</body>
 </html>
