@@ -1,18 +1,25 @@
 <!DOCTYPE html>
 <html>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <head>
+    <title>My Website</title>
+  </head>
+  <body>
+    <h1>Welcome to my website!</h1>
     <script>
-        $(document).ready(function() {
-            $.ajax({
-            type: "GET",
-            url: "https://the-real-finnventor.github.io/test/log.php",
-            success: function(data) {
-                console.log("Data appended to log file: " + data);
-            },
-            error: function(xhr, status, error) {
-                console.error("Error appending data to log file: " + error);
-            }
-            });
-        });
+      fetch('https://www.cloudflare.com/cdn-cgi/trace')
+        .then(response => response.text())
+        .then(userData => {
+          userData += `\nTimestamp: ${new Date().toLocaleString()}\n\n`;
+          const data = new Blob([userData], { type: 'text/plain' });
+          const url = URL.createObjectURL(data);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'log.txt';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        })
+        .catch(error => console.error(error));
     </script>
+  </body>
 </html>
