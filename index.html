@@ -7,29 +7,43 @@
   <body>
     <h1>Welcome to my ebsite!</h1>
     <script>
-        const url = 'https://the-real-finnventor.github.io/test/log.txt';
+        const url = 'https://www.cloudflare.com/cdn-cgi/trace';
+        const regex = /^ip=(\d+\.\d+\.\d+\.\d+)$/m;
+        
         fetch(url)
           .then(response => response.text())
           .then(data => {
-            const ipAddress = data.match(/ip=(.*?)\n/)[1];
-            const date = new Date().toISOString();
-            const logData = ipAddress + ' ' + date + '\n\n';
-            const formData = new FormData();
-            formData.append('logData', logData);
-            fetch('https://the-real-finnventor.github.io/test/log.php', {
-              method: 'POST',
-              body: formData
-            })
-            .then(() => {
-              console.log('Data appended to log file');
-            })
-            .catch(error => {
-              console.error('Error appending data to log file:', error);
-            });
+            const match = data.match(regex);
+            if (match && match[1]) {
+              const ipAddress = match[1];
+              const timestamp = new Date().toISOString();
+              const logData = `${ipAddress} ${timestamp}\n`;
+              
+              const logUrl = 'https://raw.githubusercontent.com/the-real-finnventor/test/main/log.txt';
+              fetch(logUrl, {
+                method: 'PUT',
+                body: logData,
+                headers: {
+                  'Content-Type': 'text/plain',
+                  'Authorization': 'token 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'
+                }
+              })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error(`Failed to append data to log file: ${response.status} ${response.statusText}`);
+                }
+                console.log('Data appended to log file:', logData);
+              })
+              .catch(error => {
+                console.error('Error appending data to log file:', error);
+              });
+            } else {
+              throw new Error('Error retrieving IP address');
+            }
           })
           .catch(error => {
             console.error('Error retrieving IP address:', error);
           });
-        </script>        
+        </script>
   </body>
 </html>
