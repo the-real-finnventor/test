@@ -2,15 +2,17 @@
 <html>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $.ajax({
-            url: 'log.php',
-            type: 'POST',
+        $(document).ready(function() {
+            $.ajax({
+            type: "GET",
+            url: "https://myusername.github.io/myrepo/log.php",
             success: function(data) {
-            console.log('Data appended to log file.');
+                console.log("Data appended to log file: " + data);
             },
             error: function(xhr, status, error) {
-            console.error('Error appending data to log file: ' + error);
+                console.error("Error appending data to log file: " + error);
             }
+            });
         });
     </script>
 </html>
