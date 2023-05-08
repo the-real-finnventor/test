@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- index.html -->
 <html>
   <head>
     <title>My Website</title>
@@ -6,20 +7,44 @@
   <body>
     <h1>Welcome to my website!</h1>
     <script>
-      fetch('https://www.cloudflare.com/cdn-cgi/trace')
-        .then(response => response.text())
-        .then(userData => {
-          userData += `\nTimestamp: ${new Date().toLocaleString()}\n\n`;
-          const data = new Blob([userData], { type: 'text/plain' });
-          const url = URL.createObjectURL(data);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = 'log.txt';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        })
-        .catch(error => console.error(error));
+      const owner = 'the-real-finnventor';
+      const repo = 'test';
+      const path = 'log.txt';
+      const token = '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';
+
+      fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+        headers: {
+          'Authorization': `token ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        const content = data.content;
+        const decodedContent = atob(content);
+        const newContent = `${decodedContent}\n${userData}\n`;
+        const encodedContent = btoa(newContent);
+
+        return fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'Append data to log.txt',
+            content: encodedContent,
+            sha: data.sha
+          })
+        });
+      })
+      .then(response => {
+        if (response.ok) {
+          console.log('Data appended to log file on GitHub');
+        } else {
+          console.error('Error appending data to log file on GitHub');
+        }
+      })
+      .catch(error => console.error(error));
     </script>
   </body>
 </html>
