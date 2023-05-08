@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $.ajax({
+            url: 'log.php',
+            type: 'POST',
+            success: function(data) {
+            console.log('Data appended to log file.');
+            },
+            error: function(xhr, status, error) {
+            console.error('Error appending data to log file: ' + error);
+            }
+        });
+    </script>
+</html>
